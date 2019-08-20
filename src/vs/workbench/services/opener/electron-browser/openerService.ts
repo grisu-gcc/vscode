@@ -31,15 +31,19 @@ export class OpenerService extends BaseOpenerService {
 		super(codeEditorService, commandService, storageService, dialogService, productService);
 	}
 
-	async openExternal(resource: URI): Promise<boolean> {
-		const success = this.windowsService.openExternal(encodeURI(resource.toString(true)));
-		if (!success && resource.scheme === Schemas.file) {
-			await this.windowsService.showItemInFolder(resource);
+	async open(resource: URI, options?: { openToSide?: boolean, openExternal?: boolean }): Promise<boolean> {
+		if (options && options.openExternal) {
+			const success = this.windowsService.openExternal(encodeURI(resource.toString(true)));
+			if (!success && resource.scheme === Schemas.file) {
+				await this.windowsService.showItemInFolder(resource);
 
-			return true;
+				return true;
+			}
+
+			return success;
 		}
 
-		return success;
+		return super.open(resource, options);
 	}
 }
 
